@@ -11,7 +11,7 @@ def addEnvmap(scene,config, pmgr):
 		'type' : 'envmap',
 		'filename' : str(config["envmap"])
 		})
-				
+			
 	scene.addChild(envmap)
 		
 	return(scene)

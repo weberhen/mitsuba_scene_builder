@@ -5,27 +5,33 @@ import multiprocessing
 def createSensor(pmgr, config, index):
 	# Create a sensor, film & sample generator
 	newSensor = pmgr.create({
-		'type' : str(config["camera"]),
+		'type' : str(config["sensor"]["type"]),
 		'toWorld' : Transform.lookAt(
-			Point(config["cameraLookat"][index][0], config["cameraLookat"][index][1], config["cameraLookat"][index][2]),
-			Point(config["cameraLookat"][index][3], config["cameraLookat"][index][4], config["cameraLookat"][index][5]),
-			Vector(config["cameraLookat"][index][6], config["cameraLookat"][index][7], config["cameraLookat"][index][8])
+			Point(config["sensor"]["transform"]["lookat"]["origin"][index][0], 
+				  config["sensor"]["transform"]["lookat"]["origin"][index][1], 
+				  config["sensor"]["transform"]["lookat"]["origin"][index][2]),
+			Point(config["sensor"]["transform"]["lookat"]["target"][index][0], 
+				  config["sensor"]["transform"]["lookat"]["target"][index][1], 
+				  config["sensor"]["transform"]["lookat"]["target"][index][2]),
+			Vector(config["sensor"]["transform"]["lookat"]["up"][index][0], 
+				   config["sensor"]["transform"]["lookat"]["up"][index][1], 
+				   config["sensor"]["transform"]["lookat"]["up"][index][2])
 		),
-		'fov' : float(config["fov"][index]),
+		'fov' : float(config["sensor"]["fov"][index]),
 		'film' : {
-			'type' : 'hdrfilm',
-			'width' : int(config["width"]),
-			'height' : int(config["height"]),
+			'type' : str(config["sensor"]["film"]["type"]),
+			'width' : int(config["sensor"]["film"]["width"]),
+			'height' : int(config["sensor"]["film"]["height"]),
 			'banner' : False,
-			'cropOffsetX' : 0,
-			'cropOffsetY' : 25,
-			'cropWidth' : 25,
-			'cropHeight' : 25,
+			# 'cropOffsetX' : 0,
+			# 'cropOffsetY' : 25,
+			# 'cropWidth' : 25,
+			# 'cropHeight' : 25,
 			#'label[10, 10]' : str(str(config["sampler_type"]) + " " + str(config["sampler_sampleCount"]))
 		},
 		'sampler' : {
-		 	'type' : str(config["sampler_type"]),
-		 	'sampleCount' : int(config["sampler_sampleCount"])
+		 	'type' : str(config["sensor"]["sampler"]["type"]),
+		 	'sampleCount' : int(config["sensor"]["sampler"]["sampleCount"])
 		},
 	})
 	return newSensor
@@ -38,15 +44,14 @@ def modifyScene(scene, index, config, pmgr):
 	# Create a shallow copy of the scene so that the queue can tell apart the two
 	# rendering processes. This takes almost no extra memory
 	newScene = Scene(scene)
-	
-	# # # Create a sensor, film & sample generator
-	# newSensor = createSensor(pmgr, config, index)
 
-	# newSensor.configure()
-	# newScene.addSensor(newSensor)
-	# newScene.setSensor(newSensor)
-	# newScene.setSampler(scene.getSampler())
-	newScene.setDestinationFile(destination)
+	# Create a sensor, film & sample generator
+	newSensor = createSensor(pmgr, config, index)	
+	newSensor.configure()
+	newScene.addSensor(newSensor)
+	newScene.setSensor(newSensor)
+	newScene.setDestinationFile(destination)	
+	
 	newScene.configure()
 
 	return(newScene)

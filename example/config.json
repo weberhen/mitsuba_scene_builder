@@ -1,0 +1,36 @@
+{ 
+  "nScenes" : 2,
+  "sensor" : {
+    "type" : "perspective",
+    "transform" : {
+      "name" : "toWorld",
+      "lookat" : {
+        "origin" : [
+          [0,0,-3],
+          [0,0,-4]
+        ],
+        "target" : [
+          [0,0,0],
+          [0,0,0]
+        ],
+        "up" : [
+          [0,1,0],
+          [0,1,0]
+        ]
+      }             
+    },
+    "fov" : [
+      90,
+      40
+    ],
+    "sampler" : {
+      "type" : "stratified",
+      "sampleCount" : 4
+    },
+    "film" : {
+      "type" : "hdrfilm",
+      "width" : 512,
+      "height" : 512
+    }
+  }
+}

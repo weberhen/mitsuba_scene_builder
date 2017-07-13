@@ -3,7 +3,7 @@ import argparse
 import json
 
 from mitsuba.core import *
-from mitsuba.render import RenderQueue, RenderJob
+from mitsuba.render import RenderQueue, RenderJob, SceneHandler, Scene
 import multiprocessing
 
 from loadScene import loadScene
@@ -31,18 +31,15 @@ if __name__ == '__main__':
 	with open(args.configFile) as configFile:    
 		config = json.load(configFile)
 
-	#load basic scene
 	scene = loadScene(args.basicSceneFile)
 
-	#add VPLS
-	scene = addVPLS(scene,config, pmgr)
-
-	#scene = addEnvmap(scene,config,pmgr)
+	if 'vpls' in config:
+		scene = addVPLS(scene,config, pmgr)
 
 	sceneResID = scheduler.registerResource(scene)
 	
 	scene.initialize()
 
 	for i in range(config["nScenes"]):
-		mscene = modifyScene(scene, i, config, pmgr)
+	 	mscene = modifyScene(scene, i, config, pmgr)
 		renderScene(mscene, i, sceneResID)
