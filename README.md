@@ -2,19 +2,10 @@
 
 Render your scenes in mitsuba without a XML file.
 
-For the moment the code supports the following file configurations:
- * Load an existing XML file.
- * Load a JSON file with the following configurations (one for each scene you want to render)
- 	 * Sensor description
-     * width
-     * height
-     * LookAt
-     * fov
-   * Sampler description
-   * Number of scenes to be rendered
-   * Light emitters:
-     * File with Virtual Point Light Description (see description bellow)
-   * Object poses
+An example of configuration file (JSON file) and a simple scene in XML format can be found in the example folder.
+To render the scene described by these two files, simply run
+
+    python main.py -b example/scene.xml -c example/config.json
    
 Dependencies
 ============
