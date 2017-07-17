@@ -1,0 +1,59 @@
+{
+    "film": {
+        "height": 512,
+        "type": "hdrfilm",
+        "width": 512
+    },
+    "nScenes": 2,
+    "sampler": {
+        "type": "stratified"
+    },
+    "sensor": {
+        "fov": {
+            "0": 90,
+            "1": 40
+        },
+        "lookAt": {
+            "origin": {
+                "0": [
+                    0,
+                    0,
+                    -3
+                ],
+                "1": [
+                    0,
+                    0,
+                    -4
+                ]
+            },
+            "target": {
+                "0": [
+                    0,
+                    0,
+                    0
+                ],
+                "1": [
+                    0,
+                    0,
+                    0
+                ]
+            },
+            "up": {
+                "0": [
+                    0,
+                    1,
+                    0
+                ],
+                "1": [
+                    0,
+                    1,
+                    0
+                ]
+            }
+        },
+        "sampleCount": 4,
+        "transform": "toWorld",
+        "type": "perspective"
+    },
+    "vpls": "data_vpls.txt"
+}

@@ -9,7 +9,7 @@ import multiprocessing
 from loadScene import loadScene
 from modifyScene import modifyScene
 from renderScene import renderScene
-from addVPLS import addVPLS
+from vpls import addVPLS
 from addEnvmap import addEnvmap
 
 if __name__ == '__main__':
@@ -34,7 +34,8 @@ if __name__ == '__main__':
 	scene = loadScene(args.basicSceneFile)
 
 	if 'vpls' in config:
-		scene = addVPLS(scene,config, pmgr)
+		vpls = loadVPLS(config["vpls"])
+		scene = addVPLS(scene,config, pmgr, vpls)
 
 	sceneResID = scheduler.registerResource(scene)
 	
