@@ -2,13 +2,13 @@
 <scene version="0.5.0">
 
 	<shape type="sphere">
-		<float name="radius" value="1"/>
+		<float name="radius" value=".2"/>
 		<transform name="toWorld">
-			<translate x="0" y="0" z="0"/>
+			<translate x="0" y="1.2" z="0"/>
 		</transform>
 		
 		<bsdf type="alta_brdf">
-			<string name="filename"    value="blue-metallic-paint.binary" />
+			<string name="filename"    value="example/blue-metallic-paint.binary" />
 			<string name="data-plugin" value="data_merl" />
 		</bsdf>
 	</shape>

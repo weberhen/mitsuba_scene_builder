@@ -7,21 +7,21 @@ def createSensor(pmgr, config, index):
 	newSensor = pmgr.create({
 		'type' : str(config["sensor"]["type"]),
 		'toWorld' : Transform.lookAt(
-			Point(config["sensor"]["transform"]["lookat"]["origin"][index][0], 
-				  config["sensor"]["transform"]["lookat"]["origin"][index][1], 
-				  config["sensor"]["transform"]["lookat"]["origin"][index][2]),
-			Point(config["sensor"]["transform"]["lookat"]["target"][index][0], 
-				  config["sensor"]["transform"]["lookat"]["target"][index][1], 
-				  config["sensor"]["transform"]["lookat"]["target"][index][2]),
-			Vector(config["sensor"]["transform"]["lookat"]["up"][index][0], 
-				   config["sensor"]["transform"]["lookat"]["up"][index][1], 
-				   config["sensor"]["transform"]["lookat"]["up"][index][2])
+			Point(config["sensor"]["lookAt"]["origin"][index][0], 
+				  config["sensor"]["lookAt"]["origin"][index][1], 
+				  config["sensor"]["lookAt"]["origin"][index][2]),
+			Point(config["sensor"]["lookAt"]["target"][index][0], 
+				  config["sensor"]["lookAt"]["target"][index][1], 
+				  config["sensor"]["lookAt"]["target"][index][2]),
+			Vector(config["sensor"]["lookAt"]["up"][index][0], 
+				   config["sensor"]["lookAt"]["up"][index][1], 
+				   config["sensor"]["lookAt"]["up"][index][2])
 		),
 		'fov' : float(config["sensor"]["fov"][index]),
 		'film' : {
-			'type' : str(config["sensor"]["film"]["type"]),
-			'width' : int(config["sensor"]["film"]["width"]),
-			'height' : int(config["sensor"]["film"]["height"]),
+			'type' : str(config["film"]["type"]),
+			'width' : int(config["film"]["width"]),
+			'height' : int(config["film"]["height"]),
 			'banner' : False,
 			# 'cropOffsetX' : 0,
 			# 'cropOffsetY' : 25,
@@ -30,8 +30,8 @@ def createSensor(pmgr, config, index):
 			#'label[10, 10]' : str(str(config["sampler_type"]) + " " + str(config["sampler_sampleCount"]))
 		},
 		'sampler' : {
-		 	'type' : str(config["sensor"]["sampler"]["type"]),
-		 	'sampleCount' : int(config["sensor"]["sampler"]["sampleCount"])
+		 	'type' : str(config["sampler"]["type"]),
+		 	'sampleCount' : int(config["sampler"]["sampleCount"])
 		},
 	})
 	return newSensor

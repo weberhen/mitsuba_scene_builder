@@ -1,59 +1,59 @@
 {
     "film": {
-        "height": 512,
+        "height": 256,
         "type": "hdrfilm",
-        "width": 512
+        "width": 256
     },
-    "nScenes": 2,
+    "nScenes": 1,
     "sampler": {
+        "sampleCount": 8192,
         "type": "stratified"
     },
     "sensor": {
-        "fov": {
-            "0": 90,
-            "1": 40
-        },
+        "fov": [
+            90,
+            40
+        ],
         "lookAt": {
-            "origin": {
-                "0": [
-                    0,
-                    0,
-                    -3
-                ],
-                "1": [
-                    0,
-                    0,
-                    -4
-                ]
-            },
-            "target": {
-                "0": [
-                    0,
-                    0,
+            "origin": [
+                [
+                    -0.3,
+                    1.2,
                     0
                 ],
-                "1": [
-                    0,
-                    0,
+                [
+                    -2,
+                    1.2,
                     0
                 ]
-            },
-            "up": {
-                "0": [
+            ],
+            "target": [
+                [
+                    0,
+                    1.2,
+                    0
+                ],
+                [
+                    0,
+                    1.2,
+                    0
+                ]
+            ],
+            "up": [
+                [
                     0,
                     1,
                     0
                 ],
-                "1": [
+                [
                     0,
                     1,
                     0
                 ]
-            }
+            ]
         },
-        "sampleCount": 4,
         "transform": "toWorld",
         "type": "perspective"
     },
-    "vpls": "data_vpls.txt"
+    "vpls": "example/data_vpls.txt"
 }

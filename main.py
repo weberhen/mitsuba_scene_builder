@@ -9,7 +9,7 @@ import multiprocessing
 from loadScene import loadScene
 from modifyScene import modifyScene
 from renderScene import renderScene
-from vpls import addVPLS
+from vpls import loadVPLS, addVPLS
 from addEnvmap import addEnvmap
 
 if __name__ == '__main__':
