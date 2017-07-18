@@ -41,7 +41,7 @@ def addVPLS(scene,config, pmgr, vpls):
 		
 	return(scene)
 
-def renderVPLSFromTop(vpls):
+def renderVPLSFromTop(vpls,cam):
 	''' render VPLS having the camera at the top of the scene. The result will 
 	be an image that will be used to define the 3D space where the camera and
 	object can be placed in the environment. '''
@@ -62,7 +62,7 @@ def renderVPLSFromTop(vpls):
 	scene = Scene()
 
 	for i in xrange(1, nVPLS, 4):
-		if(float(vpls[i][2]) == 2.4):
+		if(float(vpls[i][2]) == 0):
 			scene.addChild(pmgr.create({
 				'type' : 'sphere',
 				'center' : Point(float(vpls[i][1]),float(vpls[i][2]),float(vpls[i][3])),
@@ -76,15 +76,15 @@ def renderVPLSFromTop(vpls):
 	scene.addChild(pmgr.create({
 		'type' : 'perspective',
 		'toWorld' : Transform.lookAt(
-			Point(0,8,0),
-			Point(0,0,0),
-			Vector(1,0,0)
+			Point(cam.origin[0], cam.origin[1], cam.origin[2]),
+			Point(cam.target[0], cam.target[1], cam.target[2]),
+			Vector(cam.up[0], cam.up[1], cam.up[2])
 		),
-		'fov' : 90.,
+		'fov' : cam.fov,
 		'film' : {
 			'type' : 'ldrfilm',
-			'width' : 128,
-			'height' : 128,
+			'width' : cam.width,
+			'height' : cam.height,
 			'banner' : False,
 		},
 		'sampler' : {

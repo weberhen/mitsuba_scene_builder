@@ -6,6 +6,15 @@ import numpy as np
 
 from vpls import loadVPLS, renderVPLSFromTop
 
+class Camera:
+	fov = 90.
+	width = 128
+	height = 128
+	origin = [0,8,0]
+	target = [0,0,0]
+	up = [1,0,0]
+
+
 # { 
 #   "nScenes" : 2,
 #   "vpls" : "data_vpls.txt",
@@ -59,22 +68,30 @@ def initializeData():
 
 def generateCameraPosition(rangeCamera):
 
+	cam = Camera()
+
 	rangeCameraValues = cv2.findNonZero(rangeCamera)
 
 	nPossibleCameraPositions, height = rangeCameraValues.shape[:2]
 
 	randomIndex = random.randint(0, nPossibleCameraPositions - 1)
-	print(randomIndex)
 
 	#generate a random (x,z) coordinate to form the vector where the camera will be
-	x,z = rangeCameraValues[randomIndex].squeeze()
+	z,x = rangeCameraValues[randomIndex].squeeze()
 
 	#generate a random (y) coordinate to form the vector where the camera will be
 	y = random.uniform(0, 2.4) 
-
+	
+	#transform to the camera coordinate system
 	print(x)
 	print(y)
 	print(z)
+	img = np.zeros(rangeCamera.shape, np.uint8)	
+	img[(x,z)] = 255
+	cv2.imshow('camPose',img)
+	print(cam.origin[1]*(float(cam.width/2-x)/(cam.width/2)))
+	print(y)
+	print(cam.origin[1]*(float(z-cam.height/2)/(cam.height/2)))
 
 	#TODO go from screen coordinate to camera coordinates and get a value in the vector (x,y,z)
 
@@ -102,16 +119,19 @@ def generatePoses(rangeVPLS, nScenes, distMin, distMax):
 		objPose = rangeObjectValues[i][0]
 		
 		img = np.zeros(rangeVPLS.shape, np.uint8)	
-		img[(objPose[1],objPose[0])] = 255
+		
 
 		rangeCamera = getRegionAroundPoint(rangeVPLS, objPose, radius, distMin)
 		
 		camPose = generateCameraPosition(rangeCamera)
+		img[(objPose[1],objPose[0])] = 255
+		#img[(camPose[1],camPose[0])] = 100
+		rangeVPLS[(objPose[1],objPose[0])] = 0
+		rangeVPLS[64,64] = 0
 		
-		img[(camPose[1],camPose[0])] = 100
-
 		cv2.imwrite('objLoc.png',img)
 		cv2.imshow('objLoc.png',img)
+		cv2.imshow('rangeVPLS',rangeVPLS)
 		cv2.imwrite('rangeCamera.png',rangeCamera)
 		cv2.waitKey()
 
@@ -119,8 +139,6 @@ def generatePoses(rangeVPLS, nScenes, distMin, distMax):
 def generateFOVs(nScenes, fovMin, fovMax):
 	
 	fovs = [random.randint(fovMin, fovMax) for x in xrange(nScenes)]
-
-	print(fovs)
 
 	return fovs
 
@@ -140,7 +158,9 @@ def findRangeVPLS(vpls, radius):
 	'''outputs all possible 2D locations the camera and object can have
 	in the scene'''
 
-	#renderVPLSFromTop(vpls)
+	cam = Camera()
+	
+	#renderVPLSFromTop(vpls, cam)
 
 	# read the output from the renderer
 	renderVPLSFromTopImg = cv2.imread('renderVPLSFromTop.png',0)
@@ -172,7 +192,7 @@ def main():
 	
 	''' variables  '''
 
-	numberOfScenes = 100
+	numberOfScenes = 1
 	# minimum and maximum field of view
 	fovMin = 40
 	fovMax = 90
