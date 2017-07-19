@@ -41,6 +41,6 @@ if __name__ == '__main__':
 	
 	scene.initialize()
 
-	for i in range(config["nScenes"]):
+	for i in range(config["numberOfScenes"]):
 	 	mscene = modifyScene(scene, i, config, pmgr)
 		renderScene(mscene, i, sceneResID)

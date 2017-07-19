@@ -10,48 +10,10 @@ class Camera:
 	fov = 90.
 	width = 128
 	height = 128
-	origin = [0,8,0]
-	target = [0,0,0]
-	up = [1,0,0]
+	origin = [0.,8.,0.]
+	target = [0.,0.,0.]
+	up = [1.,0.,0.]
 
-
-# { 
-#   "nScenes" : 2,
-#   "vpls" : "data_vpls.txt",
-#   "sensor" : {
-#     "type" : "perspective",
-#     "transform" : {
-#       "name" : "toWorld",
-#       "lookat" : {
-#         "origin" : [
-#           [0,0,-3],
-#           [0,0,-4]
-#         ],
-#         "target" : [
-#           [0,0,0],
-#           [0,0,0]
-#         ],
-#         "up" : [
-#           [0,1,0],
-#           [0,1,0]
-#         ]
-#       }             
-#     },
-#     "fov" : [
-#       90,
-#       40
-#     ],
-#     "sampler" : {
-#       "type" : "stratified",
-#       "sampleCount" : 4
-#     },
-#     "film" : {
-#       "type" : "hdrfilm",
-#       "width" : 512,
-#       "height" : 512
-#     }
-#   }
-# }
 
 def initializeData():
 	data = {}
@@ -66,81 +28,78 @@ def initializeData():
 
 	return data
 
-def generateCameraPosition(rangeCamera):
+def imageToWorldCoordinateSystem(cam, points):
+	''' take the 2D coordinates in the image frame and convert to world coords'''
+	points = points.astype(float)
+
+	for i in range(0,(points.shape[0])):
+		x = points[i][1]
+		z = points[i][0]
+		x = cam.origin[1] * (float(cam.width/2-x)/(cam.width/2))
+		z = cam.origin[1] * (float(z-cam.height/2)/(cam.height/2))
+		points[i][1] = x
+		points[i][0] = z
+
+	return points
+
+def generateObjectPositions(rangeVPLS, numberOfScenes):
 
 	cam = Camera()
 
-	rangeCameraValues = cv2.findNonZero(rangeCamera)
-
-	nPossibleCameraPositions, height = rangeCameraValues.shape[:2]
-
-	randomIndex = random.randint(0, nPossibleCameraPositions - 1)
-
-	#generate a random (x,z) coordinate to form the vector where the camera will be
-	z,x = rangeCameraValues[randomIndex].squeeze()
-
-	#generate a random (y) coordinate to form the vector where the camera will be
-	y = random.uniform(0, 2.4) 
-	
-	#transform to the camera coordinate system
-	print(x)
-	print(y)
-	print(z)
-	img = np.zeros(rangeCamera.shape, np.uint8)	
-	img[(x,z)] = 255
-	cv2.imshow('camPose',img)
-	print(cam.origin[1]*(float(cam.width/2-x)/(cam.width/2)))
-	print(y)
-	print(cam.origin[1]*(float(z-cam.height/2)/(cam.height/2)))
-
-	#TODO go from screen coordinate to camera coordinates and get a value in the vector (x,y,z)
-
-	camPose = [x,y,z]
-
-	return camPose
-
-
-
-def generatePoses(rangeVPLS, nScenes, distMin, distMax):
-
-	# get the possible locations the camera and 3D object can have during the
+	# get the possible locations the 3D object can have during the
 	# rendering
 	rangeObjectValues = cv2.findNonZero(rangeVPLS)
 
-	width, height = rangeObjectValues.shape[:2]
+	# get all 2D positions (x,z) where the object could be placed in the scene
+	nPossibleObjectPositions, height = rangeObjectValues.shape[:2]
 
-	stepSize = width / nScenes
+	# we want to generante #numberOfScenes positions for the object, so we define a
+	# stepsize to take one 2D position from the possible locations and skip the 
+	# next #stepsize other 2D position candidates in the array
+	stepSize = nPossibleObjectPositions / numberOfScenes
 
+	# make sure we have enough 2D positions
 	assert stepSize > 1, 'there are not enough poses for this scene'
-
-	for i in range(1,width,stepSize):
-		radius = random.randint(distMin, distMax)
-		
-		objPose = rangeObjectValues[i][0]
-		
-		img = np.zeros(rangeVPLS.shape, np.uint8)	
-		
-
-		rangeCamera = getRegionAroundPoint(rangeVPLS, objPose, radius, distMin)
-		
-		camPose = generateCameraPosition(rangeCamera)
-		img[(objPose[1],objPose[0])] = 255
-		#img[(camPose[1],camPose[0])] = 100
-		rangeVPLS[(objPose[1],objPose[0])] = 0
-		rangeVPLS[64,64] = 0
-		
-		cv2.imwrite('objLoc.png',img)
-		cv2.imshow('objLoc.png',img)
-		cv2.imshow('rangeVPLS',rangeVPLS)
-		cv2.imwrite('rangeCamera.png',rangeCamera)
-		cv2.waitKey()
-
-
-def generateFOVs(nScenes, fovMin, fovMax):
 	
-	fovs = [random.randint(fovMin, fovMax) for x in xrange(nScenes)]
+	# get the indexes of the 2D positions we will pick
+	ind_pos = np.linspace (0,nPossibleObjectPositions-1,num=numberOfScenes).astype(int)
+	
+	# copy the selected 2D positions to the output variable
+	objPositions = rangeObjectValues[ind_pos].squeeze()
+	
+
+	# since we were until now working in the image frame, we need to go back to
+	# the world coordinate systemm
+	objPositionsWorldFrame = imageToWorldCoordinateSystem(cam,objPositions)
+	
+	y = np.random.uniform(.5, 1.9, numberOfScenes)
+
+	objPositions = np.empty(shape=(numberOfScenes, 3), dtype=float)
+	
+	# organize the (x,y,z) coordinates to return them 
+	objPositions[:,0] = objPositionsWorldFrame[:,1] #x
+	objPositions[:,1] = y #y 
+	objPositions[:,2] = objPositionsWorldFrame[:,0] #z
+
+	return objPositions 
+
+
+def generateFOVs(numberOfScenes, fovMin, fovMax):
+	
+	# a field of view is generated randomly between the given interval of 
+	# fovmin and fovmax
+	fovs = [random.randint(fovMin, fovMax) for x in xrange(numberOfScenes)]
 
 	return fovs
+
+def generateCameraTargets(numberOfScenes):
+
+	target = np.empty(shape=(numberOfScenes, 3), dtype=float)
+	target[:,0] = [random.uniform(0,1) for x in xrange(numberOfScenes)]
+	target[:,1] = [random.uniform(0,1) for x in xrange(numberOfScenes)]
+	target[:,2] = [random.uniform(0,1) for x in xrange(numberOfScenes)]
+
+	return target
 
 def getRegionAroundPoint(img, point, radius, thickness):
 
@@ -160,12 +119,12 @@ def findRangeVPLS(vpls, radius):
 
 	cam = Camera()
 	
-	#renderVPLSFromTop(vpls, cam)
+	renderVPLSFromTop(vpls, cam)
 
 	# read the output from the renderer
 	renderVPLSFromTopImg = cv2.imread('renderVPLSFromTop.png',0)
 
-	kernel = np.ones((15,15),np.uint8)
+	kernel = np.ones((25,25),np.uint8)
 
 	width, height = renderVPLSFromTopImg.shape[:2]
 	
@@ -190,9 +149,7 @@ def main():
 
 	data = initializeData()
 	
-	''' variables  '''
-
-	numberOfScenes = 1
+	numberOfScenes = 100
 	# minimum and maximum field of view
 	fovMin = 40
 	fovMax = 90
@@ -205,35 +162,31 @@ def main():
 	# generate random field of views
 	fovs = generateFOVs(numberOfScenes, fovMin, fovMax)
 
-	data['nScenes'] = numberOfScenes
+	camTarget = generateCameraTargets(numberOfScenes)
 
-	#vpls = loadVPLS(args.vpls_location)
-	vpls = {}
+	data['numberOfScenes'] = numberOfScenes
+
+	vpls = loadVPLS(args.vpls_location)
+	#vpls = {}
 
 	# find the range where the virtual points are in x-z coordinates
 	rangeVPLS = findRangeVPLS(vpls, radius)
 
-	generatePoses(rangeVPLS, 
-				  numberOfScenes, 
-				  distBetweenCameraObjectMin, 
-				  distBetweenCameraObjectMax
-				  )
-	
+	objPositions = generateObjectPositions(rangeVPLS, numberOfScenes)
+
 	data['vpls'] = 'example/data_vpls.txt'
-	data['sensor']['type'] = 'perspective'
+	data['sensor']['type'] = 'spherical'
 	data['sensor']['transform'] = 'toWorld'
-	data['sensor']['lookAt']['origin'] = [	[-.3,1.2,0], 
-											[-2,1.2,0]	]
-	data['sensor']['lookAt']['target'] = [	[0,1.2,0], 
-											[0,1.2,0]	]
-	data['sensor']['lookAt']['up'] = [	[0,1,0], 
-										[0,1,0]	]
-	data['sensor']['fov'] = [90,40]
+	# TODO render with the camera looking at the object
+	data['sensor']['lookAt']['origin'] = objPositions.tolist() 
+	data['sensor']['lookAt']['target'] = camTarget.tolist()
+	data['sensor']['lookAt']['up'] = np.tile([0,1,0],(numberOfScenes,1)).tolist()
+	data['sensor']['fov'] = fovs
 	data['sampler']['type'] = 'stratified'
-	data['sampler']['sampleCount'] = 8192
-	data['film']['type'] = 'hdrfilm'
+	data['sampler']['sampleCount'] = 1024
+	data['film']['type'] = 'ldrfilm'
 	data['film']['width'] = 256
-	data['film']['height'] = 256
+	data['film']['height'] = 128
 	
 	with open('example/config2.json', 'w') as outfile:
 		json.dump(data, outfile, sort_keys=True, indent=4, separators=(',', ': '))
