@@ -36,10 +36,10 @@ def createSensor(pmgr, config, index):
 	})
 	return newSensor
 
-def modifyScene(scene, index, config, pmgr):
+def modifyScene(scene, index, config, pmgr, destinationFolder):
 
 	#for i in range(number_of_renderings):
-	destination = 'result_%03i' % index
+	destination = destinationFolder + 'result_%03i' % index
 	
 	# Create a shallow copy of the scene so that the queue can tell apart the two
 	# rendering processes. This takes almost no extra memory

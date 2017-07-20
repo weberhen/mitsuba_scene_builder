@@ -29,7 +29,7 @@ def addVPLS(scene,config, pmgr, vpls):
 		areapointlight = pmgr.create({
 			'type' : 'sphere',
 			'center' : Point(float(vpls[i][1]),float(vpls[i][2]),float(vpls[i][3])),
-			'radius' : .02,
+			'radius' : .04,
 			'emitter': pmgr.create({
 						'type' : 'area',
 						'radiance' : Spectrum([float(vpls[i+2][1]),float(vpls[i+2][2]),float(vpls[i+2][3])]),
@@ -41,13 +41,18 @@ def addVPLS(scene,config, pmgr, vpls):
 		
 	return(scene)
 
-def renderVPLSFromTop(vpls,cam):
-	''' render VPLS having the camera at the top of the scene. The result will 
+def renderVPLS(vpls, cam, target):
+	''' render VPLS having the camera at looking at the desired target the scene. The result will 
 	be an image that will be used to define the 3D space where the camera and
-	object can be placed in the environment. '''
+	object can be placed in the environment. Target can be either be 'roof' or 'floor' '''
 
 	pmgr = PluginManager.getInstance()
 	scheduler = Scheduler.getInstance()
+
+	if(target == 'roof'):
+		target_height = 2.4
+	else:
+		target_height = 0
 
 	# Start up the scheduling system with one worker per local core
 	for i in range(0, multiprocessing.cpu_count()):
@@ -62,7 +67,7 @@ def renderVPLSFromTop(vpls,cam):
 	scene = Scene()
 
 	for i in xrange(1, nVPLS, 4):
-		if(float(vpls[i][2]) == 0):
+		if(float(vpls[i][2]) == target_height):
 			scene.addChild(pmgr.create({
 				'type' : 'sphere',
 				'center' : Point(float(vpls[i][1]),float(vpls[i][2]),float(vpls[i][3])),
@@ -98,7 +103,12 @@ def renderVPLSFromTop(vpls,cam):
 		}))
 	scene.configure()
 
-	scene.setDestinationFile('renderVPLSFromTop')
+	if(target == 'roof'):
+		filename = 'renderVPLSRoof'
+	else:
+		filename = 'renderVPLSFloor'
+	
+	scene.setDestinationFile(filename)
 
 	# Create a render job and insert it into the queue
 	job = RenderJob('myRenderJob', scene, queue)
@@ -107,5 +117,7 @@ def renderVPLSFromTop(vpls,cam):
 	# Wait for all jobs to finish and release resources
 	queue.waitLeft(0)
 	queue.join()
+
+	scheduler.stop()
 
 

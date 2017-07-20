@@ -3,8 +3,9 @@ import random
 import argparse
 import cv2
 import numpy as np
+import os
 
-from vpls import loadVPLS, renderVPLSFromTop
+from vpls import loadVPLS, renderVPLS
 
 class Camera:
 	fov = 90.
@@ -119,14 +120,20 @@ def findRangeVPLS(vpls, radius):
 
 	cam = Camera()
 	
-	renderVPLSFromTop(vpls, cam)
+	renderVPLS(vpls, cam, 'roof')
+	renderVPLS(vpls, cam, 'floor')
 
 	# read the output from the renderer
-	renderVPLSFromTopImg = cv2.imread('renderVPLSFromTop.png',0)
+	renderVPLSFloor = cv2.imread('renderVPLSFloor.png',0)
+
+	# read the output from the renderer
+	renderVPLSRoof = cv2.imread('renderVPLSRoof.png',0)
+
+	renderVPLSCombined = cv2.bitwise_and(renderVPLSRoof,renderVPLSFloor)
 
 	kernel = np.ones((25,25),np.uint8)
 
-	width, height = renderVPLSFromTopImg.shape[:2]
+	width, height = renderVPLSCombined.shape[:2]
 	
 	# center of the image, which corresponds to the origin in the camera 
 	# coordinate system
@@ -134,7 +141,7 @@ def findRangeVPLS(vpls, radius):
 
 	# erode the rendered image to be sure the object will be rendered inside 
 	# the 3D environment
-	erodedRenderVPLSFromTopImg = cv2.erode(renderVPLSFromTopImg, kernel, iterations = 1)
+	erodedRenderVPLSFromTopImg = cv2.erode(renderVPLSCombined, kernel, iterations = 1)
 
 	rangeVPLSImg = getRegionAroundPoint(erodedRenderVPLSFromTopImg, point, radius, -1)	
 	
@@ -144,18 +151,17 @@ def findRangeVPLS(vpls, radius):
 def main():
 	parser = argparse.ArgumentParser(description='Generate json configuration files for mitsuba')
 	parser.add_argument('-v', '--vpls_location', help="<location to>data_vpls.txt", required=True)
+	parser.add_argument('-s','--skip_existing_render', \
+		dest='skip_existing_render', action='store_true')
 	
 	args = parser.parse_args()
 
 	data = initializeData()
 	
-	numberOfScenes = 100
+	numberOfScenes = 10
 	# minimum and maximum field of view
 	fovMin = 40
 	fovMax = 90
-	# minimum and maximum distance in pixels between camera and object
-	distBetweenCameraObjectMin = 5 
-	distBetweenCameraObjectMax = 20
 	# radius around the camera location in pixels where an object can be placed
 	radius = 30
 
@@ -173,23 +179,32 @@ def main():
 	rangeVPLS = findRangeVPLS(vpls, radius)
 
 	objPositions = generateObjectPositions(rangeVPLS, numberOfScenes)
+	camTarget[:,1] = objPositions[:,1]
 
-	data['vpls'] = 'example/data_vpls.txt'
+	data['vpls'] = args.vpls_location
 	data['sensor']['type'] = 'spherical'
 	data['sensor']['transform'] = 'toWorld'
 	# TODO render with the camera looking at the object
 	data['sensor']['lookAt']['origin'] = objPositions.tolist() 
 	data['sensor']['lookAt']['target'] = camTarget.tolist()
-	data['sensor']['lookAt']['up'] = np.tile([0,1,0],(numberOfScenes,1)).tolist()
+	data['sensor']['lookAt']['up'] = \
+	np.tile([0,1,0],(numberOfScenes,1)).tolist()
 	data['sensor']['fov'] = fovs
 	data['sampler']['type'] = 'stratified'
 	data['sampler']['sampleCount'] = 1024
-	data['film']['type'] = 'ldrfilm'
+	data['film']['type'] = 'hdrfilm'
 	data['film']['width'] = 256
 	data['film']['height'] = 128
-	
-	with open('example/config2.json', 'w') as outfile:
-		json.dump(data, outfile, sort_keys=True, indent=4, separators=(',', ': '))
+
+	#generate folder to put the data
+	data_location = args.vpls_location[:-13] + 'renders'
+	command = 'mkdir ' + data_location
+	print(data_location)
+	output = os.popen(command).read()
+	if(output == '' or (output != '' and args.skip_existing_render == True)):
+		with open(data_location + '/config.json', 'w') as outfile:
+			json.dump(data, outfile, sort_keys=True, indent=4, separators= \
+				(',', ': '))
 
 if __name__ == "__main__":
     main()

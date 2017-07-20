@@ -14,11 +14,11 @@
 	</shape> -->
 
 	<shape type="ply">
-	    <string name="filename" value="/home/jack/Documents/hdr_indoor/9C4A0307_Panorama_hdr/depth_9C4A0307.ply"/>
+	    <string name="filename" value="$mesh"/>
 	    <bsdf type="diffuse">
 	      <texture type="vertexcolors" name="reflectance"/>
 	     </bsdf>
-	  </shape>
+	</shape>
 
 </scene>
 

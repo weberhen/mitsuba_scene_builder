@@ -31,7 +31,7 @@ if __name__ == '__main__':
 	with open(args.configFile) as configFile:    
 		config = json.load(configFile)
 
-	scene = loadScene(args.basicSceneFile)
+	scene = loadScene(args.basicSceneFile,config['vpls'])
 
 	if 'vpls' in config:
 		vpls = loadVPLS(config["vpls"])
@@ -41,6 +41,8 @@ if __name__ == '__main__':
 	
 	scene.initialize()
 
+	destinationFolder = args.configFile[:-11] 
+
 	for i in range(config["numberOfScenes"]):
-	 	mscene = modifyScene(scene, i, config, pmgr)
+	 	mscene = modifyScene(scene, i, config, pmgr, destinationFolder)
 		renderScene(mscene, i, sceneResID)
