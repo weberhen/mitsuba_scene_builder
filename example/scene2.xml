@@ -15,8 +15,9 @@
 
 	<shape type="ply">
 	    <string name="filename" value="$mesh"/>
-	    <bsdf type="diffuse">
-	      <texture type="vertexcolors" name="reflectance"/>
+	    <bsdf type="conductor">
+	    	<string name="material" value="none"/>
+	      <!-- <texture type="vertexcolors" name="reflectance"/> -->
 	     </bsdf>
 	</shape>
 

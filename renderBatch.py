@@ -56,7 +56,7 @@ def main():
 	args = parser.parse_args()
 
 	all_data_vpls = find_data_vpls(args.root_dir)
-
+	print(all_data_vpls)
 	generate_meshes(all_data_vpls)	
 
 	generate_config_files(all_data_vpls, args.skip_existing_render)

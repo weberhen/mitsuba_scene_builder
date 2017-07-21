@@ -29,7 +29,7 @@ def addVPLS(scene,config, pmgr, vpls):
 		areapointlight = pmgr.create({
 			'type' : 'sphere',
 			'center' : Point(float(vpls[i][1]),float(vpls[i][2]),float(vpls[i][3])),
-			'radius' : .04,
+			'radius' : .02,
 			'emitter': pmgr.create({
 						'type' : 'area',
 						'radiance' : Spectrum([float(vpls[i+2][1]),float(vpls[i+2][2]),float(vpls[i+2][3])]),

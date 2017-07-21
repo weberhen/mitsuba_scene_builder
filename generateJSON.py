@@ -142,9 +142,11 @@ def findRangeVPLS(vpls, radius):
 	# erode the rendered image to be sure the object will be rendered inside 
 	# the 3D environment
 	erodedRenderVPLSFromTopImg = cv2.erode(renderVPLSCombined, kernel, iterations = 1)
-
+	
 	rangeVPLSImg = getRegionAroundPoint(erodedRenderVPLSFromTopImg, point, radius, -1)	
 	
+	cv2.imwrite('rangeVPLSImg.png',rangeVPLSImg)
+
 	return rangeVPLSImg
 
 
@@ -158,12 +160,12 @@ def main():
 
 	data = initializeData()
 	
-	numberOfScenes = 10
+	numberOfScenes = 5
 	# minimum and maximum field of view
 	fovMin = 40
 	fovMax = 90
 	# radius around the camera location in pixels where an object can be placed
-	radius = 30
+	radius = 20
 
 	# generate random field of views
 	fovs = generateFOVs(numberOfScenes, fovMin, fovMax)
@@ -191,7 +193,7 @@ def main():
 	np.tile([0,1,0],(numberOfScenes,1)).tolist()
 	data['sensor']['fov'] = fovs
 	data['sampler']['type'] = 'stratified'
-	data['sampler']['sampleCount'] = 1024
+	data['sampler']['sampleCount'] = 4
 	data['film']['type'] = 'hdrfilm'
 	data['film']['width'] = 256
 	data['film']['height'] = 128
