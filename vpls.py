@@ -29,7 +29,7 @@ def addVPLS(scene,config, pmgr, vpls):
 		areapointlight = pmgr.create({
 			'type' : 'sphere',
 			'center' : Point(float(vpls[i][1]),float(vpls[i][2]),float(vpls[i][3])),
-			'radius' : .02,
+			'radius' : .03,
 			'emitter': pmgr.create({
 						'type' : 'area',
 						'radiance' : Spectrum([float(vpls[i+2][1]),float(vpls[i+2][2]),float(vpls[i+2][3])]),
@@ -41,8 +41,8 @@ def addVPLS(scene,config, pmgr, vpls):
 		
 	return(scene)
 
-def renderVPLS(vpls, cam, target):
-	''' render VPLS having the camera at looking at the desired target the scene. The result will 
+def renderVPLS(vpls, cam, scene, target):
+	''' render VPLS having the camera looking at the desired target the scene. The result will 
 	be an image that will be used to define the 3D space where the camera and
 	object can be placed in the environment. Target can be either be 'roof' or 'floor' '''
 
@@ -50,9 +50,9 @@ def renderVPLS(vpls, cam, target):
 	scheduler = Scheduler.getInstance()
 
 	if(target == 'roof'):
-		target_height = 2.4
+		target_height = scene.HeightRoof
 	else:
-		target_height = 0
+		target_height = scene.HeightFloor
 
 	# Start up the scheduling system with one worker per local core
 	for i in range(0, multiprocessing.cpu_count()):

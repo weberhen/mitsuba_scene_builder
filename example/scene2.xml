@@ -15,11 +15,13 @@
 
 	<shape type="ply">
 	    <string name="filename" value="$mesh"/>
-	    <bsdf type="conductor">
-	    	<string name="material" value="none"/>
-	      <!-- <texture type="vertexcolors" name="reflectance"/> -->
+	    <bsdf type="diffuse">
+	    	 <texture type="vertexcolors" name="reflectance"/>
 	     </bsdf>
 	</shape>
+	<!-- <emitter type="envmap">
+		 <string name="filename" value="$envmap"/>
+	</emitter> -->
 
 </scene>
 
