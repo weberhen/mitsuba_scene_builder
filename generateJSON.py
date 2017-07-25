@@ -143,7 +143,7 @@ def findHeightRoof(vpls):
     return HeightRoof
 
 
-def findRangeVPLS(vpls, radius, scene):
+def findRangeVPLS(vpls, radius, scene, scene_count):
     '''outputs all possible 2D locations the camera and object can have
     in the scene'''
 
@@ -170,19 +170,34 @@ def findRangeVPLS(vpls, radius, scene):
 
     renderVPLSCombined = cv2.bitwise_and(renderVPLSRoof, renderVPLSFloor)
 
-    kernel = np.ones((25, 25), np.uint8)
+    kernel_size = 30
+    enough_render_positions = False
 
-    width, height = renderVPLSCombined.shape[:2]
+    while(not enough_render_positions):
 
-    # center of the image, which corresponds to the origin in the camera
-    # coordinate system
-    point = (width / 2, height / 2)
+        kernel = np.ones((kernel_size, kernel_size), np.uint8)
 
-    # erode the rendered image to be sure the object will be rendered inside
-    # the 3D environment
-    erodedRenderVPLSFromTopImg = cv2.erode(renderVPLSCombined, kernel, iterations=1)
+        width, height = renderVPLSCombined.shape[:2]
 
-    rangeVPLSImg = getRegionAroundPoint(erodedRenderVPLSFromTopImg, point, radius, -1)
+        # center of the image, which corresponds to the origin in the camera
+	    # coordinate system
+        point = (width / 2, height / 2)
+
+        # erode the rendered image to be sure the object will be rendered inside
+        # the 3D environment
+        erodedRenderVPLSFromTopImg = cv2.erode(renderVPLSCombined, kernel, iterations=1)
+
+        rangeVPLSImg = getRegionAroundPoint(erodedRenderVPLSFromTopImg, point, radius, -1)
+
+        rangeObjectValues = cv2.findNonZero(rangeVPLSImg)
+
+        # get all 2D positions (x,z) where the object could be placed in the scene
+        nPossibleObjectPositions, height = rangeObjectValues.shape[:2]
+
+        if(nPossibleObjectPositions >= scene_count ):
+            enough_render_positions = True
+
+        kernel_size = kernel_size - 5
 
     cv2.imwrite('rangeVPLSImg.png', rangeVPLSImg)
 
@@ -218,7 +233,7 @@ def main():
     # vpls = {}
 
     # find the range where the virtual points are in x-z coordinates
-    rangeVPLS, scene = findRangeVPLS(vpls, radius, scene)
+    rangeVPLS, scene = findRangeVPLS(vpls, radius, scene, scene_count)
 
     objPositions = generate_object_positions(rangeVPLS, scene_count, scene)
     camTarget[:, 1] = objPositions[:, 1]

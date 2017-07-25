@@ -27,8 +27,8 @@ def generate_config_files(all_data_vpls, args):
     if (args.skip_existing_render == True):
         flag_skip_existing_render = '-s '
     for i in range(0, len(all_data_vpls)):
-    	#get name of the input folder to use it inside the dataset folder 
-    	base_folder = "-".join(all_data_vpls[i].split('/')[-3:][:-1])
+        #get name of the input folder to use it inside the dataset folder
+        base_folder = "-".join(all_data_vpls[i].split('/')[-3:][:-1])
         command = 'python generateJSON.py ' + flag_skip_existing_render + '-v ' + all_data_vpls[i] + \
                   ' -o ' + args.output_location + '/' + base_folder
         os.system(command)
@@ -38,8 +38,8 @@ def generate_renders(all_data_vpls, args):
     # render all scenes
 
     for i in range(0, len(all_data_vpls)):
-    	#get name of the input folder to use it inside the dataset folder 
-    	base_folder = "-".join(all_data_vpls[i].split('/')[-3:][:-1])
+        #get name of the input folder to use it inside the dataset folder
+        base_folder = "-".join(all_data_vpls[i].split('/')[-3:][:-1])
         command = 'python main.py -b example/scene2.xml -c ' + args.output_location + '/' + base_folder + '/config.json ' + \
                   ' -o ' + args.output_location + '/' + base_folder
         os.system(command)
