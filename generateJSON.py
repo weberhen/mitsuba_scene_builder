@@ -170,7 +170,7 @@ def findRangeVPLS(vpls, radius, scene):
 
     renderVPLSCombined = cv2.bitwise_and(renderVPLSRoof, renderVPLSFloor)
 
-    kernel = np.ones((30, 30), np.uint8)
+    kernel = np.ones((25, 25), np.uint8)
 
     width, height = renderVPLSCombined.shape[:2]
 

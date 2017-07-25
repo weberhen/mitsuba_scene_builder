@@ -20,23 +20,26 @@ def generate_meshes(all_data_vpls):
             os.system(command)
 
 
-def generate_config_files(all_data_vpls, args, base_folder):
+def generate_config_files(all_data_vpls, args):
     # generate the configuration for the renders
         
     flag_skip_existing_render = ''
     if (args.skip_existing_render == True):
         flag_skip_existing_render = '-s '
     for i in range(0, len(all_data_vpls)):
+    	#get name of the input folder to use it inside the dataset folder 
+    	base_folder = "-".join(all_data_vpls[i].split('/')[-3:][:-1])
         command = 'python generateJSON.py ' + flag_skip_existing_render + '-v ' + all_data_vpls[i] + \
                   ' -o ' + args.output_location + '/' + base_folder
-        print(command)
         os.system(command)
 
 
-def generate_renders(all_data_vpls, args, base_folder):
+def generate_renders(all_data_vpls, args):
     # render all scenes
 
     for i in range(0, len(all_data_vpls)):
+    	#get name of the input folder to use it inside the dataset folder 
+    	base_folder = "-".join(all_data_vpls[i].split('/')[-3:][:-1])
         command = 'python main.py -b example/scene2.xml -c ' + args.output_location + '/' + base_folder + '/config.json ' + \
                   ' -o ' + args.output_location + '/' + base_folder
         os.system(command)
@@ -52,15 +55,12 @@ def main():
     args = parser.parse_args()
 
     all_data_vpls = find_data_vpls(args.input_location)
-    
-    #get name of the input folder to use it inside the dataset folder 
-    base_folder = "-".join(args.input_location.split('/')[-3:][:-1])
 
     generate_meshes(all_data_vpls)
 
-    generate_config_files(all_data_vpls, args, base_folder)
+    generate_config_files(all_data_vpls, args)
 
-    generate_renders(all_data_vpls, args, base_folder)
+    generate_renders(all_data_vpls, args)
 
 
 if __name__ == "__main__":
