@@ -65,6 +65,8 @@ def generate_object_positions(rangeVPLS, numberOfScenes, scene):
     # get the possible locations the 3D object can have during the
     # rendering
     rangeObjectValues = cv2.findNonZero(rangeVPLS)
+    print(len(rangeObjectValues))
+    input("damn")
 
     # get all 2D positions (x,z) where the object could be placed in the scene
     nPossibleObjectPositions, height = rangeObjectValues.shape[:2]
@@ -191,10 +193,10 @@ def findRangeVPLS(vpls, radius, scene, scene_count):
 
         rangeObjectValues = cv2.findNonZero(rangeVPLSImg)
 
-        # get all 2D positions (x,z) where the object could be placed in the scene
+        # get all 2D positions (x,z) where the object could be placed in the scene  
         nPossibleObjectPositions, height = rangeObjectValues.shape[:2]
 
-        if(nPossibleObjectPositions >= scene_count ):
+        if((type(rangeObjectValues) is np.ndarray) and (nPossibleObjectPositions >= scene_count )):
             enough_render_positions = True
 
         kernel_size = kernel_size - 5
